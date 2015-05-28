@@ -6,13 +6,13 @@ import re
 
 from subprocess import Popen, PIPE
 
-import copy_reg
+import copyreg
 import types
 
 def _pickle_method(method):
-    func_name = method.im_func.__name__
-    obj = method.im_self
-    cls = method.im_class
+    func_name = method.__func__.__name__
+    obj = method.__self__
+    cls = method.__self__.__class__
     return _unpickle_method, (func_name, obj, cls)
 
 def _unpickle_method(func_name, obj, cls):
@@ -25,7 +25,7 @@ def _unpickle_method(func_name, obj, cls):
             break
     return func.__get__(obj, cls)
 
-copy_reg.pickle(types.MethodType, _pickle_method, _unpickle_method)
+copyreg.pickle(types.MethodType, _pickle_method, _unpickle_method)
 
 class LedgerHarness:
     ledger     = None
@@ -38,10 +38,10 @@ class LedgerHarness:
 
     def __init__(self, argv):
         if not os.path.isfile(argv[1]):
-            print "Cannot find ledger at '%s'" % argv[1]
+            print("Cannot find ledger at '%s'" % argv[1])
             sys.exit(1)
         if not os.path.isdir(argv[2]):
-            print "Cannot find source path at '%s'" % argv[2]
+            print("Cannot find source path at '%s'" % argv[2])
             sys.exit(1)
 
         self.ledger     = os.path.abspath(argv[1])
@@ -102,14 +102,14 @@ class LedgerHarness:
     def readlines(self, fd):
         lines = []
         for line in fd.readlines():
-            if not line.startswith("GuardMalloc"):
+            if not line.startswith(b"GuardMalloc"):
                 lines.append(line)
         return lines
 
     def wait(self, process, msg='Ledger invocation failed:'):
         if process.wait() != 0:
-            print msg
-            print process.stderr.read()
+            print(msg)
+            print(process.stderr.read())
             self.failure()
             return False
         return True
@@ -127,21 +127,21 @@ class LedgerHarness:
         self.failed += 1
 
     def exit(self):
-        print
+        print()
         if self.succeeded > 0:
-            print "OK (%d) " % self.succeeded,
+            print("OK (%d) " % self.succeeded, end=' ')
         if self.failed > 0:
-            print "FAILED (%d)" % self.failed,
-        print
+            print("FAILED (%d)" % self.failed, end=' ')
+        print()
 
         sys.exit(self.failed)
 
 if __name__ == '__main__':
     harness = LedgerHarness(sys.argv)
     proc = harness.run('$ledger -f doc/sample.dat reg')
-    print 'STDOUT:'
-    print proc.stdout.read()
-    print 'STDERR:'
-    print proc.stderr.read()
+    print('STDOUT:')
+    print(proc.stdout.read())
+    print('STDERR:')
+    print(proc.stderr.read())
     harness.success()
     harness.exit()

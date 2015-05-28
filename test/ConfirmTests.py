@@ -56,9 +56,9 @@ def confirm_report(command):
         if re.search(' -[VGB] ', command) and diff < 0.015:
             diff = 0.0
         if diff > 0.001:
-            print "DISCREPANCY: %.3f (%.3f - %.3f) at line %d:" % \
-                  (running_total - total, running_total, total, index)
-            print line,
+            print("DISCREPANCY: %.3f (%.3f - %.3f) at line %d:" % \
+                  (running_total - total, running_total, total, index))
+            print(line, end=' ')
             running_total = total
             failure = True
 
@@ -77,10 +77,10 @@ def confirm_report(command):
     if re.search(' -[VGB] ', command) and diff < 0.015:
         diff = 0.0
     if diff > 0.001:
-        print
-        print "DISCREPANCY: %.3f (%.3f - %.3f) between register and balance" % \
-                  (balance_total - running_total, balance_total, running_total)
-        print last_line,
+        print()
+        print("DISCREPANCY: %.3f (%.3f - %.3f) between register and balance" % \
+                  (balance_total - running_total, balance_total, running_total))
+        print(last_line, end=' ')
         failure = True
 
     return not failure

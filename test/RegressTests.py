@@ -12,7 +12,6 @@ try:
 except:
     pass
 
-from string import join
 from difflib import unified_diff
 
 from LedgerHarness import LedgerHarness
@@ -58,7 +57,7 @@ class RegressFile(object):
 
         line = self.fd.readline()
         if not line:
-          print >>sys.stderr, "WARNING: Empty testfile detected: %s" % (self.filename)
+          print("WARNING: Empty testfile detected: %s" % (self.filename), file=sys.stderr)
           return False
         #print "line =", line
         while line:
@@ -94,10 +93,10 @@ class RegressFile(object):
         return test['command'] and test
 
     def notify_user(self, msg, test):
-        print msg
-        print "--"
-        print self.transform_line(test['command']),
-        print "--"
+        print(msg)
+        print("--")
+        print(self.transform_line(test['command']), end=' ')
+        print("--")
 
     def run_test(self, test):
         use_stdin = False
@@ -130,11 +129,11 @@ class RegressFile(object):
                 if index < 3:
                     continue
                 if not printed:
-                    if success: print
+                    if success: print()
                     self.notify_user("FAILURE in output from %s:" % self.filename, test)
                     success = False
                     printed = True
-                print " ", line,
+                print(" ", line, end=' ')
 
         printed = False
         index   = 0
@@ -144,22 +143,22 @@ class RegressFile(object):
                 if index < 3:
                     continue
                 if not printed:
-                    if success: print
+                    if success: print()
                     self.notify_user("FAILURE in error output from %s:"
                                      % self.filename, test)
                     success = False
                     printed = True
-                print " ", line,
+                print(" ", line, end=' ')
 
         if test['exitcode'] is None or test['exitcode'] == p.wait():
             if success:
                 harness.success()
             else:
                 harness.failure(os.path.basename(self.filename))
-                print "STDERR:"
-                print p.stderr.read()
+                print("STDERR:")
+                print(p.stderr.read())
         else:
-            if success: print
+            if success: print()
             if test['exitcode']:
                 self.notify_user("FAILURE in exit code (%d != %d) from %s:"
                                  % (test['exitcode'], p.returncode, self.filename),
@@ -195,7 +194,7 @@ if __name__ == '__main__':
         if pool:
             pool.map(do_test, tests, 1)
         else:
-            map(do_test, tests)
+            list(map(do_test, tests))
     else:
         entry = RegressFile(tests)
         entry.run_tests()

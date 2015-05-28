@@ -48,48 +48,48 @@ for path in sys.argv[1:]:
             match = re.search('(namespace|enum|class|struct|union)', line)
             if match:
                 kind = match.group(1)
-                if debug: print "kind =", kind
+                if debug: print("kind =", kind)
             elif kind == "function":
                 match = re.search('(\S+)\(', line)
                 if match:
                     function_name = match.group(1)
                     long_comments[function_name] = comment_count
                     comment_count = 0
-                    if debug: print "name found %s" % function_name
+                    if debug: print("name found %s" % function_name)
 
         if re.search('{', line) and not re.search('@{', line):
             if kind == "function":
                 brace_depth += 1
-                if debug: print "brace_depth =", brace_depth
+                if debug: print("brace_depth =", brace_depth)
             else:
                 other_depth += 1
                 kind = "function"
-                if debug: print "other_depth =", other_depth
+                if debug: print("other_depth =", other_depth)
 
         if re.search('}', line) and not re.search('@}', line):
             if brace_depth > 0:
                 brace_depth -= 1
-                if debug: print "brace_depth =", brace_depth
+                if debug: print("brace_depth =", brace_depth)
 
                 if brace_depth == 0:
-                    if debug: print "function done"
+                    if debug: print("function done")
                     if function_name in long_comments:
                         comment_count += long_comments[function_name]
                     if code_count == 0:
                         percent = ok
-                        print "%7s  %4d/%4d  %s:%d: %s" % \
+                        print("%7s  %4d/%4d  %s:%d: %s" % \
                             ("empty", comment_count, code_count,
                              os.path.basename(path), linenum,
-                             function_name)
+                             function_name))
                         errors += 1
                     else:
                         percent = 100.0 * (float(comment_count) /
                                            float(code_count))
                     if percent < ok and not ctor_dtor:
-                        print "%6.0f%%  %4d/%4d  %s:%d: %s" % \
+                        print("%6.0f%%  %4d/%4d  %s:%d: %s" % \
                             (percent, comment_count, code_count,
                              os.path.basename(path), linenum,
-                             function_name)
+                             function_name))
                         errors += 1
                     code_count    = 0
                     comment_count = 0
@@ -98,7 +98,7 @@ for path in sys.argv[1:]:
                     ctor_dtor     = False
             else:
                 other_depth -= 1
-                if debug: print "other_depth =", other_depth
+                if debug: print("other_depth =", other_depth)
 
         if brace_depth > 0:
             if re.search("TRACE_[CD]TOR", line):

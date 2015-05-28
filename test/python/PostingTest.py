@@ -5,7 +5,11 @@ import exceptions
 import operator
 
 from ledger import *
-from StringIO import *
+# Fallback to python 2 naming
+try:
+    from io import *
+except ImportError:
+    from StringIO import *
 from datetime import *
 
 class PostingTestCase(unittest.TestCase):

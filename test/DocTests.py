@@ -71,13 +71,13 @@ class DocTests:
         test_end_line = self.current_line
 
         if not test_id:
-          print >> sys.stderr, 'Example', test_kind, 'in line', test_begin_line, 'is missing id.'
+          print('Example', test_kind, 'in line', test_begin_line, 'is missing id.', file=sys.stderr)
           test_id = self.test_id(example)
           if test_kind == self.testin_token:
-            print >> sys.stderr, 'Use', self.test_id(example)
+            print('Use', self.test_id(example), file=sys.stderr)
         elif test_kind == self.testin_token and test_id != self.validate_token and test_id != self.test_id(example):
-          print >> sys.stderr, 'Expected test id', test_id, 'for example' \
-              , test_kind, 'on line', test_begin_line, 'to be', self.test_id(example)
+          print('Expected test id', test_id, 'for example' \
+              , test_kind, 'on line', test_begin_line, 'to be', self.test_id(example), file=sys.stderr)
 
         if test_id == self.validate_token:
           test_id = "Val-" + str(test_begin_line)
@@ -117,7 +117,7 @@ class DocTests:
       else:
         return None
 
-    command = filter(lambda x: x != '\n', shlex.split(command))
+    command = [x for x in shlex.split(command) if x != '\n']
     if command[0] == '$': command.remove('$')
     index = command.index('ledger')
     command[index] = self.ledger
@@ -140,12 +140,12 @@ class DocTests:
 
   def test_examples(self):
     failed = set()
-    tests = self.examples.keys()
+    tests = list(self.examples.keys())
     if self.tests:
       tests = list(set(self.tests).intersection(tests))
       temp = list(set(self.tests).difference(tests))
       if len(temp) > 0:
-        print >> sys.stderr, 'Skipping non-existent examples: %s' % ', '.join(temp)
+        print('Skipping non-existent examples: %s' % ', '.join(temp), file=sys.stderr)
     
     for test_id in tests:
       validation = False
@@ -192,36 +192,36 @@ class DocTests:
         try:
           verify = subprocess.check_output(command, stderr=subprocess.STDOUT)
           valid = (output == verify) or (not error and validation)
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
           error = e.output
           valid = False
           failed.add(test_id)
         if valid and test_file_created:
           os.remove(test_file)
         if self.verbose > 0:
-          print test_id, ':', 'Passed' if valid else 'FAILED: {}'.format(error) if error else 'FAILED'
+          print(test_id, ':', 'Passed' if valid else 'FAILED: {}'.format(error) if error else 'FAILED')
         else:
           sys.stdout.write('.' if valid else 'E')
 
         if not (valid or error):
           failed.add(test_id)
           if self.verbose > 1:
-            print ' '.join(command)
+            print(' '.join(command))
             if not validation:
               for line in unified_diff(output.split('\n'), verify.split('\n'), fromfile='generated', tofile='expected'):
                 print(line)
-              print
+              print()
       else:
         if self.verbose > 0:
-          print test_id, ':', 'Skipped'
+          print(test_id, ':', 'Skipped')
         else:
           sys.stdout.write('X')
 
     if not self.verbose:
-      print
+      print()
     if len(failed) > 0:
-      print "\nThe following examples failed:"
-      print " ", "\n  ".join(failed)
+      print("\nThe following examples failed:")
+      print(" ", "\n  ".join(failed))
     return len(failed)
 
   def main(self):

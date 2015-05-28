@@ -115,11 +115,11 @@ def generation_test(seed):
         if line[:2] == "  ":
             continue
         if not printed:
-            if success: print
-            print "Generation failure in output from seed %d (cout vs. print):" % seed
+            if success: print()
+            print("Generation failure in output from seed %d (cout vs. print):" % seed)
             success = False
             printed = True
-        print " ", line
+        print(" ", line)
 
     return success
 
@@ -142,7 +142,7 @@ else:
     pool = None
 
 if pool:
-    pool.map(run_gen_test, range(beg_range, end_range))
+    pool.map(run_gen_test, list(range(beg_range, end_range)))
 else:
     for i in range(beg_range, end_range):
         run_gen_test(i)
